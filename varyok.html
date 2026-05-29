@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>⚡ KÖLE & CEZA & İFLAS ÇARKI | Doğan & Seher</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0e2a1a, #03180e);
+            font-family: 'Segoe UI', 'Quicksand', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            max-width: 1500px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .history-panel {
+            background: #1e2a21e6;
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            width: 300px;
+            padding: 20px 15px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid #e9cf97;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .history-panel h3 {
+            text-align: center;
+            color: #ffefb9;
+            font-size: 1.5rem;
+            margin: 0 0 15px 0;
+            border-bottom: 2px solid #e2b56a;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-list li {
+            background: #fff2df;
+            border-radius: 24px;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #274e36;
+            box-shadow: 0 2px 5px black;
+            border-left: 8px solid #d48d3b;
+            word-break: break-word;
+        }
+
+        .game-area {
+            flex: 1;
+            min-width: 330px;
+            background: #2c3a2bbb;
+            backdrop-filter: blur(8px);
+            border-radius: 70px;
+            padding: 20px;
+            box-shadow: 0 20px 35px black;
+        }
+
+        .name-selector {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            margin-bottom: 15px;
+            background: #ebddbb;
+            padding: 12px 20px;
+            border-radius: 60px;
+            flex-wrap: wrap;
+        }
+
+        .name-btn {
+            font-size: 1.4rem;
+            font-weight: bold;
+            padding: 8px 30px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            background: #c7af7a;
+            transition: 0.1s;
+            color: #1f2b1c;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .name-btn.active {
+            background: #fe9f4b;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .wheel-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        canvas {
+            border-radius: 50%;
+            box-shadow: 0 12px 30px black, 0 0 0 8px #ffe3b3, 0 0 0 14px #aa7442;
+            max-width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+
+        .info-card {
+            background: #1e281ce0;
+            border-radius: 60px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .result-badge {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: #fff1dc;
+            display: inline-block;
+            padding: 12px 20px;
+            border-radius: 50px;
+            margin: 8px 0;
+            color: #503e22;
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        .turn-info {
+            background: #00000066;
+            border-radius: 32px;
+            padding: 8px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ffecb3;
+        }
+
+        button {
+            background: #ffb45e;
+            border: none;
+            font-size: 1.4rem;
+            font-weight: bold;
+            padding: 12px 32px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.05s linear;
+            box-shadow: 0 5px 0 #8b5629;
+            margin-top: 6px;
+        }
+
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #8b5629;
+        }
+
+        .reset-info {
+            font-size: 0.7rem;
+            margin-top: 12px;
+            color: #ffe0a3;
+        }
+
+        @media (max-width: 800px) {
+            .history-panel { width: 95%; max-height: 260px; }
+            .result-badge { font-size: 1.1rem; }
+            .name-btn { font-size: 1rem; padding: 6px 18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="history-panel">
+        <h3>📜 ÇARK GEÇMİŞİ</h3>
+        <ul class="history-list" id="historyList">
+            <li>✨ Henüz çevrilmedi ✨</li>
+        </ul>
+    </div>
+
+    <div class="game-area">
+        <div class="name-selector">
+            <button class="name-btn" id="btnDogan">🐺 DOĞAN</button>
+            <button class="name-btn" id="btnSeher">🌸 SEHER</button>
+        </div>
+        <div class="turn-info" id="turnInfo">
+            ⏳ Bugün çevirme hakkı: <span id="remainingText">---</span>
+        </div>
+        <div class="wheel-wrapper">
+            <canvas id="mainWheel" width="560" height="560"></canvas>
+        </div>
+        <div class="info-card">
+            <div>🎲 SONUÇ</div>
+            <div class="result-badge" id="currentResult">ÇARKA TIKLA</div>
+            <button id="spinBtn">🌀 ÇARKI ÇEVİR 🌀</button>
+            <div class="reset-info">
+                💥 İFLAS: 1 emir | ⛓️ KÖLE GÜNÜ: 1 gün tam hizmet | ⚠️ CEZALI GÖREV: Seçilen ceza uygulanır<br>
+                ⭐ Her gün sadece 1 hak (Doğan veya Seher)
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========= 11 DİLİM (AKTİVİTE + KUTAN + İFLAS + KÖLE + CEZA) =========
+    const SEGMENTS = [
+        { name: "🎬 FİLM İZLE",      color: "#E76F51" },
+        { name: "🍳 YEMEK YAP",       color: "#F4A261" },
+        { name: "🚶 DIŞARI ÇIK",     color: "#E9C46A" },
+        { name: "🎮 OYUN OYNA",      color: "#6A994E" },
+        { name: "💆 MASAJ YAP",      color: "#A7C957" },
+        { name: "🍰 TATLI YE/YAP",   color: "#BC6C25" },
+        { name: "🪄 KUTAN VAR",      color: "#d98c5f" },
+        { name: "❌ KUTAN YOK",      color: "#b5654b" },
+        { name: "💥 İFLAS",          color: "#9e2d2f" },
+        { name: "⛓️ KÖLE GÜNÜ",     color: "#4a3b52" },
+        { name: "⚠️ CEZALI GÖREV",   color: "#bf6f00" }
+    ];
+
+    const SEGMENT_COUNT = SEGMENTS.length;
+    const ANGLE_PER_SEG = (Math.PI * 2) / SEGMENT_COUNT;
+
+    let currentAngleDeg = Math.random() * 360;
+    let spinning = false;
+    let animFrame = null;
+    let spinStartTime, spinStartAngle, spinTargetDelta;
+    const SPIN_DURATION = 1800;
+
+    let currentPlayer = "Doğan";
+    let lastSpinDate = "";
+    let usedToday = false;
+    let history = [];
+
+    const canvas = document.getElementById('mainWheel');
+    const ctx = canvas.getContext('2d');
+    const resultDiv = document.getElementById('currentResult');
+    const turnInfoSpan = document.getElementById('remainingText');
+    const historyList = document.getElementById('historyList');
+
+    function getTodayStr() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function getCurrentTimeStr() {
+        const d = new Date();
+        return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+    }
+
+    function checkAndResetDaily() {
+        const today = getTodayStr();
+        if (lastSpinDate !== today) {
+            usedToday = false;
+            lastSpinDate = today;
+            localStorage.setItem('kole_iflas_lastDate', today);
+            localStorage.setItem('kole_iflas_usedToday', 'false');
+        } else {
+            usedToday = localStorage.getItem('kole_iflas_usedToday') === 'true';
+        }
+        updateTurnInfo();
+    }
+
+    function updateTurnInfo() {
+        turnInfoSpan.innerText = usedToday ? `⛔ Bugünkü hak kullanıldı. Yarın tekrar!` : `✅ Bugün ÇEVİRİLEBİLİR (${currentPlayer} çevirebilir)`;
+    }
+
+    function loadHistory() {
+        const stored = localStorage.getItem('kole_iflas_history');
+        if (stored) { try { history = JSON.parse(stored); } catch(e) { history = []; } }
+        if (!history) history = [];
+        renderHistory();
+    }
+
+    function saveHistory() {
+        localStorage.setItem('kole_iflas_history', JSON.stringify(history));
+        renderHistory();
+    }
+
+    function addHistoryEntry(player, resultText) {
+        history.unshift({ date: getTodayStr(), time: getCurrentTimeStr(), player: player, result: resultText });
+        if (history.length > 40) history.pop();
+        saveHistory();
+    }
+
+    function renderHistory() {
+        if (history.length === 0) {
+            historyList.innerHTML = '<li>✨ Henüz çevrilmedi ✨</li>';
+            return;
+        }
+        historyList.innerHTML = history.map(item => `
+            <li><strong>${item.player}</strong> · ${item.date} ${item.time}<br>🎡 ${item.result}</li>
+        `).join('');
+    }
+
+    function getCurrentSegmentIndex(angleDeg) {
+        const pointerAngle = 270;
+        for (let i = 0; i < SEGMENT_COUNT; i++) {
+            let startSeg = (angleDeg + i * (360/SEGMENT_COUNT)) % 360;
+            let endSeg = (startSeg + (360/SEGMENT_COUNT)) % 360;
+            if (startSeg < endSeg) {
+                if (pointerAngle >= startSeg && pointerAngle < endSeg) return i;
+            } else {
+                if (pointerAngle >= startSeg || pointerAngle < endSeg) return i;
+            }
+        }
+        return Math.floor(((pointerAngle - angleDeg + 360) % 360) / (360/SEGMENT_COUNT)) % SEGMENT_COUNT;
+    }
+
+    function drawWheel() {
+        const w = canvas.width, h = canvas.height;
+        const cx = w/2, cy = h/2;
+        const radius = w * 0.44;
+        ctx.clearRect(0,0,w,h);
+        
+        for (let i=0; i<SEGMENT_COUNT; i++) {
+            const startRad = (currentAngleDeg * Math.PI/180) + i * ANGLE_PER_SEG;
+            const endRad = startRad + ANGLE_PER_SEG;
+            ctx.beginPath();
+            ctx.moveTo(cx,cy);
+            ctx.arc(cx,cy,radius, startRad, endRad);
+            ctx.closePath();
+            ctx.fillStyle = SEGMENTS[i].color;
+            ctx.fill();
+            ctx.strokeStyle = "#FDE5B4";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.save();
+            ctx.translate(cx,cy);
+            ctx.rotate(startRad + ANGLE_PER_SEG/2);
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            let fontSize = radius * 0.105;
+            ctx.font = `bold ${fontSize}px "Segoe UI", "Quicksand"`;
+            ctx.fillStyle = "#1f2c1c";
+            let label = SEGMENTS[i].name;
+            if (label.length > 14) fontSize *= 0.85;
+            ctx.font = `bold ${fontSize}px "Segoe UI", "Quicksand"`;
+            ctx.fillText(label, radius * 0.71, 6);
+            ctx.restore();
+        }
+        ctx.beginPath();
+        ctx.arc(cx,cy, radius*0.11, 0, 2*Math.PI);
+        ctx.fillStyle = "#FADFAF";
+        ctx.fill();
+        ctx.fillStyle = "#a7582a";
+        ctx.font = "bold 24px monospace";
+        ctx.fillText("⚡", cx-12, cy+9);
+        
+        ctx.beginPath();
+        const arrowX = cx, arrowY = cy - radius - 10;
+        ctx.moveTo(arrowX-13, arrowY+9);
+        ctx.lineTo(arrowX, arrowY);
+        ctx.lineTo(arrowX+13, arrowY+9);
+        ctx.fillStyle = "#ffe2b0";
+        ctx.fill();
+        ctx.fillStyle = "#b45f2b";
+        ctx.font = "bold 18px monospace";
+        ctx.fillText("▼", arrowX-6, arrowY+17);
+    }
+
+    function getRandomDelta() {
+        return (6 + Math.random() * 14) * 360 + Math.random() * 360;
+    }
+
+    function animateSpin(now) {
+        const elapsed = now - spinStartTime;
+        let t = Math.min(1, elapsed / SPIN_DURATION);
+        const ease = 1 - Math.pow(1-t, 2.7);
+        currentAngleDeg = (spinStartAngle + spinTargetDelta * ease) % 360;
+        drawWheel();
+        if (t < 1) {
+            animFrame = requestAnimationFrame(animateSpin);
+        } else {
+            spinning = false;
+            const finalAngle = (spinStartAngle + spinTargetDelta) % 360;
+            const idx = getCurrentSegmentIndex(finalAngle);
+            let rawResult = SEGMENTS[idx].name;
+            let displayResult = rawResult;
+            
+            if (rawResult.includes("İFLAS")) displayResult = `💥 İFLAS! ${currentPlayer}, eşinin bir dediğini yapacak.`;
+            else if (rawResult.includes("KÖLE GÜNÜ")) displayResult = `⛓️ KÖLE GÜNÜ! ${currentPlayer}, 1 gün boyunca eşinin her dediğini yapacak.`;
+            else if (rawResult.includes("CEZALI GÖREV")) displayResult = `⚠️ CEZALI GÖREV! ${currentPlayer}, eşinin seçtiği cezayı uygulayacak.`;
+            
+            resultDiv.innerText = displayResult;
+            addHistoryEntry(currentPlayer, displayResult);
+            usedToday = true;
+            localStorage.setItem('kole_iflas_usedToday', 'true');
+            localStorage.setItem('kole_iflas_lastDate', getTodayStr());
+            updateTurnInfo();
+            if (animFrame) cancelAnimationFrame(animFrame);
+            animFrame = null;
+        }
+    }
+
+    function spinWheel() {
+        if (spinning) { resultDiv.innerText = "Çark dönüyor..."; return; }
+        if (usedToday) { resultDiv.innerText = `⛔ Bugün hak kullanıldı! Yarın tekrar.`; return; }
+        spinStartAngle = currentAngleDeg;
+        spinTargetDelta = getRandomDelta();
+        spinStartTime = performance.now();
+        spinning = true;
+        resultDiv.innerText = "🌀 DÖNÜYOR... 🌀";
+        if (animFrame) cancelAnimationFrame(animFrame);
+        animFrame = requestAnimationFrame(animateSpin);
+    }
+
+    function setActivePlayer(player) {
+        currentPlayer = player;
+        document.getElementById('btnDogan').classList.toggle('active', player === 'Doğan');
+        document.getElementById('btnSeher').classList.toggle('active', player === 'Seher');
+        updateTurnInfo();
+    }
+
+    function loadGameState() {
+        const today = getTodayStr();
+        const storedLast = localStorage.getItem('kole_iflas_lastDate');
+        if (storedLast === today) {
+            lastSpinDate = today;
+            usedToday = localStorage.getItem('kole_iflas_usedToday') === 'true';
+        } else {
+            lastSpinDate = today;
+            usedToday = false;
+            localStorage.setItem('kole_iflas_lastDate', today);
+            localStorage.setItem('kole_iflas_usedToday', 'false');
+        }
+        const saved = localStorage.getItem('kole_iflas_currentPlayer');
+        if (saved === 'Doğan' || saved === 'Seher') currentPlayer = saved;
+        else currentPlayer = 'Doğan';
+        setActivePlayer(currentPlayer);
+    }
+
+    document.getElementById('spinBtn').addEventListener('click', () => { spinWheel(); localStorage.setItem('kole_iflas_currentPlayer', currentPlayer); });
+    document.getElementById('btnDogan').addEventListener('click', () => { setActivePlayer('Doğan'); localStorage.setItem('kole_iflas_currentPlayer', 'Doğan'); });
+    document.getElementById('btnSeher').addEventListener('click', () => { setActivePlayer('Seher'); localStorage.setItem('kole_iflas_currentPlayer', 'Seher'); });
+
+    loadGameState();
+    loadHistory();
+    checkAndResetDaily();
+    drawWheel();
+    setInterval(() => { checkAndResetDaily(); }, 60000);
+</script>
+</body>
+</html>
